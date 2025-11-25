@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pac-Man Clássico</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111827;
+            color: #f9fafb;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        canvas {
+            background: #1e293b;
+            border: 2px solid #f59e0b;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        #info {
+            font-size: 1.2rem;
+        }
+        #game-over {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #f59e0b;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="game-container">
+    <canvas id="pacman" width="300" height="300"></canvas>
+    <div id="info">Score: <span id="score">0</span> — Vidas: <span id="lives">3</span></div>
+    <div id="status" style="font-size:0.9rem;color:#fbbf24;"></div>
+    <div id="game-over">
+        <h2>Game Over</h2>
+        <p id="final-score"></p>
+        <button id="restart">Jogar novamente</button>
+    </div>
+</div>
+<script>
+const canvas = document.getElementById('pacman');
+const ctx = canvas.getContext('2d');
+const TILE = 15;
+const COLS = canvas.width / TILE;
+const ROWS = canvas.height / TILE;
+
+// Simple map: 0=empty, 1=wall, 2=pellet
+const map = [];
+for (let y = 0; y < ROWS; y++) {
+    const row = [];
+    for (let x = 0; x < COLS; x++) {
+        // outer walls
+        if (x === 0 || y === 0 || x === COLS-1 || y === ROWS-1) {
+            row.push(1);
+        } else if ((x % 4 === 0 && y % 4 !== 0) && y > 2 && y < ROWS - 3) {
+            // vertical walls
+            row.push(1);
+        } else if ((y % 4 === 0 && x % 4 !== 0) && x > 2 && x < COLS - 3) {
+            // horizontal walls
+            row.push(1);
+        } else {
+            row.push(2); // pellet
+        }
+    }
+    map.push(row);
+}
+
+let score = 0;
+let lives = 3;
+let gameOver = false;
+
+const pac = {
+    x: 1,
+    y: 1,
+    dx: 0,
+    dy: 0,
+    nextDx: 0,
+    nextDy: 0
+};
+
+const ghost = {
+    x: COLS - 2,
+    y: ROWS - 2,
+    dx: 0,
+    dy: 0
+};
+
+function randomDir() {
+    const dirs = [ {dx:1,dy:0}, {dx:-1,dy:0}, {dx:0,dy:1}, {dx:0,dy:-1} ];
+    return dirs[Math.floor(Math.random() * dirs.length)];
+}
+
+function drawMap() {
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            if (map[y][x] === 1) {
+                ctx.fillStyle = '#374151';
+                ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+            } else {
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+                if (map[y][x] === 2) {
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(x*TILE + TILE/2, y*TILE + TILE/2, 2, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+        }
+    }
+}
+
+function drawPac() {
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(pac.x*TILE + TILE/2, pac.y*TILE + TILE/2, TILE/2 - 2, 0.25*Math.PI, 1.75*Math.PI);
+    ctx.lineTo(pac.x*TILE + TILE/2, pac.y*TILE + TILE/2);
+    ctx.fill();
+}
+
+function drawGhost() {
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(ghost.x*TILE + TILE/2, ghost.y*TILE + TILE/2, TILE/2 - 2, 0, Math.PI*2);
+    ctx.fill();
+}
+
+function update() {
+    if (gameOver) return;
+    // handle pac next direction (for smooth turning)
+    if (!isWall(pac.x + pac.nextDx, pac.y + pac.nextDy)) {
+        pac.dx = pac.nextDx;
+        pac.dy = pac.nextDy;
+    }
+    // move pac
+    if (!isWall(pac.x + pac.dx, pac.y + pac.dy)) {
+        pac.x += pac.dx;
+        pac.y += pac.dy;
+    }
+    // eat pellet
+    if (map[pac.y][pac.x] === 2) {
+        map[pac.y][pac.x] = 0;
+        score += 10;
+        document.getElementById('score').innerText = score;
+        if (remainingPellets() === 0) {
+            endGame(true);
+            return;
+        }
+    }
+    // move ghost randomly
+    if (Math.random() < 0.2 || isWall(ghost.x+ghost.dx, ghost.y+ghost.dy)) {
+        const dir = randomDir();
+        ghost.dx = dir.dx;
+        ghost.dy = dir.dy;
+    }
+    if (!isWall(ghost.x + ghost.dx, ghost.y + ghost.dy)) {
+        ghost.x += ghost.dx;
+        ghost.y += ghost.dy;
+    }
+    // collision
+    if (pac.x === ghost.x && pac.y === ghost.y) {
+        lives--;
+        document.getElementById('lives').innerText = lives;
+        if (lives <= 0) {
+            endGame(false);
+            return;
+        }
+        // reset positions
+        pac.x = 1; pac.y = 1;
+        pac.dx = pac.dy = pac.nextDx = pac.nextDy = 0;
+        ghost.x = COLS - 2; ghost.y = ROWS - 2;
+    }
+    draw();
+}
+
+function isWall(x, y) {
+    return map[y] && map[y][x] === 1;
+}
+
+function draw() {
+    drawMap();
+    drawPac();
+    drawGhost();
+}
+
+function remainingPellets() {
+    let count = 0;
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            if (map[y][x] === 2) count++;
+        }
+    }
+    return count;
+}
+
+function endGame(won) {
+    gameOver = true;
+    document.getElementById('final-score').innerText = 'Seu score final: ' + score;
+    document.getElementById('game-over').style.display = 'flex';
+    recordScore(score);
+}
+
+function recordScore(score) {
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = 'Enviando score...';
+    fetch('/api/jogos/score', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({game: 'pacman', score: score})
+    }).then(resp => {
+        if (resp.ok) {
+            statusEl.textContent = 'Score registrado! Abra o ranking para ver sua posição.';
+        } else {
+            statusEl.textContent = 'Não foi possível registrar o score (auth?).';
+        }
+    }).catch(() => {
+        statusEl.textContent = 'Não foi possível registrar o score (offline?).';
+    });
+}
+
+function restart() {
+    // reset map
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            if (map[y][x] !== 1) {
+                map[y][x] = 2;
+            }
+        }
+    }
+    score = 0;
+    lives = 3;
+    document.getElementById('score').innerText = score;
+    document.getElementById('lives').innerText = lives;
+    gameOver = false;
+    pac.x = 1; pac.y = 1; pac.dx = 0; pac.dy = 0; pac.nextDx = 0; pac.nextDy = 0;
+    ghost.x = COLS - 2; ghost.y = ROWS - 2; ghost.dx = 0; ghost.dy = 0;
+    document.getElementById('game-over').style.display = 'none';
+    draw();
+}
+
+document.addEventListener('keydown', (e) => {
+    // set next direction (arrow keys or wasd)
+    if (e.key === 'ArrowUp' || e.key === 'w') {
+        pac.nextDx = 0; pac.nextDy = -1;
+    } else if (e.key === 'ArrowDown' || e.key === 's') {
+        pac.nextDx = 0; pac.nextDy = 1;
+    } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+        pac.nextDx = -1; pac.nextDy = 0;
+    } else if (e.key === 'ArrowRight' || e.key === 'd') {
+        pac.nextDx = 1; pac.nextDy = 0;
+    }
+});
+
+document.getElementById('restart').addEventListener('click', restart);
+
+// game loop
+draw();
+setInterval(update, 200);
+</script>
+</body>
+</html>

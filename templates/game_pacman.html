@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Pac-Man • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Pac-Man Clássico</h2>
+    <p class="small-text">Coma todas as bolinhas e cuidado com os fantasmas!</p>
+    <div class="game-frame-wrapper">
+        <iframe src="{{ url_for('static', filename='games/pacman/index.html') }}" class="game-iframe" title="Pac-Man"></iframe>
+    </div>
+    <a href="{{ url_for('games') }}" class="btn">Voltar</a>
+</section>
+{% endblock %}

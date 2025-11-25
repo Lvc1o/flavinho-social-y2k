@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Editar Perfil • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2>Editar Perfil</h2>
+    <form method="post" enctype="multipart/form-data">
+        <label>Nome de exibição
+            <input type="text" name="display_name" value="{{ user['display_name'] or '' }}">
+        </label>
+        <label>Bio
+            <textarea name="bio" rows="3">{{ user['bio'] or '' }}</textarea>
+        </label>
+        <label>Cidade
+            <input type="text" name="city" value="{{ user['city'] or '' }}">
+        </label>
+        <label>Status/recado
+            <input type="text" name="status_msg" value="{{ user['status_msg'] or '' }}">
+        </label>
+        <label>Idade
+            <input type="number" name="age" value="{{ user['age'] or '' }}">
+        </label>
+        <label>Gênero
+            <input type="text" name="gender" value="{{ user['gender'] or '' }}">
+        </label>
+        <label>Avatar (imagem)
+            <input type="file" name="avatar">
+        </label>
+        <button type="submit" class="btn">Salvar</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Cadastro • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2>Criar conta</h2>
+    <form method="post">
+        <label>Nome de usuário
+            <input type="text" name="username" required>
+        </label>
+        <label>Email
+            <input type="email" name="email" required>
+        </label>
+        <label>Senha
+            <input type="password" name="password" required>
+        </label>
+        <label>Confirmar senha
+            <input type="password" name="password_confirm" required>
+        </label>
+        <button type="submit" class="btn">Cadastrar</button>
+    </form>
+    <p class="small-text">Já tem conta? <a href="{{ url_for('login') }}">Entrar</a></p>
+</section>
+{% endblock %}

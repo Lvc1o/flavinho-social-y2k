@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Tetris • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Tetris Retrô</h2>
+    <p class="small-text">Complete linhas para marcar pontos. Boa sorte!</p>
+    <div class="game-frame-wrapper">
+        <iframe src="{{ url_for('static', filename='games/tetris/index.html') }}" class="game-iframe" title="Tetris"></iframe>
+    </div>
+    <a href="{{ url_for('games') }}" class="btn">Voltar</a>
+</section>
+{% endblock %}

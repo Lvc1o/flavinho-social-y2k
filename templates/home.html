@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Início • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card big-card">
+    <h1>Bem-vindo à Rede Social Mágica do Flavinho ✨</h1>
+    {% if user %}
+    <p>Olá, {{ user['display_name'] or user['username'] }}! Explore o feed, personalize seu perfil, jogue e converse com a IA.</p>
+    <div class="quick-links">
+        <a href="{{ url_for('feed') }}" class="btn">Ir para o Feed</a>
+        <a href="{{ url_for('profile') }}" class="btn">Meu Perfil</a>
+        <a href="{{ url_for('games') }}" class="btn">Jogos</a>
+        <a href="{{ url_for('ia_chat') }}" class="btn">Falar com a IA</a>
+    </div>
+    {% else %}
+    <p>Crie sua conta ou faça login para entrar nessa aventura nostálgica!</p>
+    <div class="quick-links">
+        <a href="{{ url_for('register') }}" class="btn">Cadastrar</a>
+        <a href="{{ url_for('login') }}" class="btn">Entrar</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

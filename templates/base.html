@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rede Social Mágica{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="top-bar">
+        <div class="logo">
+            🌐<span>Rede Social Mágica</span>
+        </div>
+        <nav class="main-nav">
+            <a href="{{ url_for('home') }}">Início</a>
+            <a href="{{ url_for('feed') }}">Feed</a>
+            <a href="{{ url_for('games') }}">Jogos</a>
+            <a href="{{ url_for('ia_chat') }}">IA</a>
+            {% if user %}
+                <a href="{{ url_for('profile') }}">Perfil</a>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Entrar</a>
+                <a href="{{ url_for('register') }}">Cadastrar</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="page-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, msg in messages %}
+                <div class="flash flash-{{ category }}">{{ msg }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <p>© 2025 Portal Mágico do Flavinho • Feito com Flask &lt;3</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Feed • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Feed</h2>
+    <form class="new-post" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="form_type" value="new_post">
+        <textarea name="content" placeholder="Compartilhe algo mágico..." required></textarea>
+        <label>Anexar foto/gif/vídeo
+            <input type="file" name="media">
+        </label>
+        <button type="submit" class="btn">Postar</button>
+    </form>
+    <div class="posts-list">
+        {% for post in posts %}
+        <div class="post-card">
+            <header>
+                <img class="avatar" src="{{ post.author.avatar_url if post.author.avatar_url else url_for('static', filename='img/default-avatar.png') }}" alt="avatar">
+                <div>
+                    <span class="username">{{ post.author.display_name or post.author.username }}</span><br>
+                    <span class="post-date">{{ post.created_at_human }}</span>
+                </div>
+            </header>
+            <p class="post-text">{{ post.content }}</p>
+            {% if post.media_url %}
+            <div class="post-media">
+                {% if post.is_image %}
+                    <img src="{{ post.media_url }}" alt="imagem do post">
+                {% elif post.is_video %}
+                    <video controls src="{{ post.media_url }}"></video>
+                {% endif %}
+            </div>
+            {% endif %}
+            <div class="comments">
+                <h4>Comentários</h4>
+                {% if post.comments %}
+                    <ul class="comment-list">
+                    {% for comment in post.comments %}
+                        <li class="comment">
+                            <img class="avatar tiny" src="{{ comment.author.avatar_url or url_for('static', filename='img/default-avatar.png') }}" alt="avatar">
+                            <div>
+                                <span class="username">{{ comment.author.display_name or comment.author.username }}</span>
+                                <span class="comment-date">{{ comment.created_at_human }}</span>
+                                <p>{{ comment.content }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="small-text">Seja o primeiro a comentar!</p>
+                {% endif %}
+                <form class="comment-form" method="post">
+                    <input type="hidden" name="form_type" value="new_comment">
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <textarea name="comment_content" rows="2" placeholder="Escreva um comentário..." required></textarea>
+                    <button type="submit" class="btn">Comentar</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p>Ainda não há posts. Que tal iniciar a conversa?</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

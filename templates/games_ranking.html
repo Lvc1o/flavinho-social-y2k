@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Ranking • Rede Social Mágica{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Ranking de Jogos 🎖️</h2>
+    <h3>Tetris</h3>
+    <ol class="ranking-list">
+        {% if ranking_tetris %}
+            {% for item in ranking_tetris %}
+            <li>
+                <span class="nick">{{ item.display_name or item.username }}</span>
+                <span class="score">{{ item.score }}</span>
+                <span class="date">{{ item.date_human }}</span>
+            </li>
+            {% endfor %}
+        {% else %}
+            <p>Ninguém jogou Tetris ainda.</p>
+        {% endif %}
+    </ol>
+    <h3>Pac-Man</h3>
+    <ol class="ranking-list">
+        {% if ranking_pacman %}
+            {% for item in ranking_pacman %}
+            <li>
+                <span class="nick">{{ item.display_name or item.username }}</span>
+                <span class="score">{{ item.score }}</span>
+                <span class="date">{{ item.date_human }}</span>
+            </li>
+            {% endfor %}
+        {% else %}
+            <p>Ninguém jogou Pac-Man ainda.</p>
+        {% endif %}
+    </ol>
+    <a href="{{ url_for('games') }}" class="btn">Voltar</a>
+</section>
+{% endblock %}
