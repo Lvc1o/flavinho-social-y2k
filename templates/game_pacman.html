@@ -7,6 +7,6 @@
     <div class="game-frame-wrapper">
         <iframe src="{{ url_for('static', filename='games/pacman/index.html') }}" class="game-iframe" title="Pac-Man"></iframe>
     </div>
-    <a href="{{ url_for('games') }}" class="btn">Voltar</a>
+    <a href="{{ url_for('games.games') }}" class="btn">Voltar</a>
 </section>
 {% endblock %}

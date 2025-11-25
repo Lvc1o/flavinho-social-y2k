@@ -23,7 +23,7 @@
                 <li><strong>Status:</strong> {{ user['status_msg'] or '-' }}</li>
             </ul>
             {% if is_self %}
-            <a href="{{ url_for('edit_profile') }}" class="btn">Editar perfil</a>
+            <a href="{{ url_for('auth.edit_profile') }}" class="btn">Editar perfil</a>
             {% endif %}
         </div>
         <div class="profile-games">

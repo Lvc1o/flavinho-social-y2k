@@ -13,15 +13,15 @@
         </div>
         <nav class="main-nav">
             <a href="{{ url_for('home') }}">Início</a>
-            <a href="{{ url_for('feed') }}">Feed</a>
-            <a href="{{ url_for('games') }}">Jogos</a>
-            <a href="{{ url_for('ia_chat') }}">IA</a>
+            <a href="{{ url_for('feed.feed') }}">Feed</a>
+            <a href="{{ url_for('games.games') }}">Jogos</a>
+            <a href="{{ url_for('ia.ia_chat') }}">IA</a>
             {% if user %}
-                <a href="{{ url_for('profile') }}">Perfil</a>
-                <a href="{{ url_for('logout') }}">Sair</a>
+                <a href="{{ url_for('auth.profile') }}">Perfil</a>
+                <a href="{{ url_for('auth.logout') }}">Sair</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Entrar</a>
-                <a href="{{ url_for('register') }}">Cadastrar</a>
+                <a href="{{ url_for('auth.login') }}">Entrar</a>
+                <a href="{{ url_for('auth.register') }}">Cadastrar</a>
             {% endif %}
         </nav>
     </header>
